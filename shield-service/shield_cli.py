@@ -12,19 +12,209 @@ BLOCK_THRESHOLD = 0.8
 DB_PATH = "shield_logs.db"
 
 FORBIDDEN_TOPICS = [
-    "api key",
-    "credentials",
+
+    #  Credentials & Secrets
+    "api key", "apikey", "api-key",
+    "secret key", "client secret",
+    "access token", "refresh token",
+    "bearer token", "oauth token",
+    "private key", "public key",
+    "ssh key", "pgp key",
+    "password", "passwd", "pwd",
+    "credentials", "login credentials",
+    "username and password",
+
+    # Cloud / DevOps Secrets
+    "aws access key", "aws secret",
+    "iam credentials", "cloud credentials",
+    "azure tenant id", "azure secret",
+    "gcp service account",
+    "firebase private key",
+    "kubernetes secret",
+    "docker registry password",
+    "ci/cd secrets",
+    "github token", "gitlab token",
+
+    #  Databases & Storage
+    "database dump", "db dump",
+    "production database",
+    "prod database",
+    "sql dump",
+    "mongodb dump",
+    "redis keys",
+    "s3 bucket contents",
+    "backup files",
+
+    #  Internal / Confidential
+    "internal document",
+    "confidential data",
+    "restricted information",
+    "private repository",
+    "internal api",
+    "internal endpoint",
+    "company secrets",
+    "trade secrets",
+    "internal roadmap",
+    "internal emails",
+
+    #  Financial / HR
     "salary spreadsheet",
-    "project x"
+    "employee salary",
+    "payroll data",
+    "bank account details",
+    "credit card numbers",
+    "debit card details",
+    "cvv number",
+    "tax records",
+    "pan card",
+    "aadhar number",
+
+    #  Legal / Strategy
+    "nda document",
+    "legal strategy",
+    "lawsuit documents",
+    "compliance report",
+    "audit report",
+    "merger plans",
+    "acquisition plans",
+    "board meeting notes",
+
+    #  AI / Model Internals
+    "system prompt",
+    "developer prompt",
+    "hidden instructions",
+    "training data",
+    "model weights",
+    "fine tuning data",
+    "rlhf data",
+    "prompt injection",
+    "guardrail bypass",
+
+    #  Malware / Exploits
+    "zero day exploit",
+    "exploit code",
+    "malware source",
+    "ransomware",
+    "keylogger",
+    "credential harvester",
+    "reverse shell",
+    "backdoor",
+    "rootkit",
+    "botnet",
+    "payload generation",
+
+    #  OPSEC / Surveillance
+    "bypass detection",
+    "avoid being traced",
+    "anonymous hacking",
+    "hide from law enforcement",
+    "evade antivirus",
+    "disable logging",
+    "erase logs",
+
+    #  Custom / Project-Specific
+    "project x",
+    "sentinel internal",
+    "shield internal",
+    "ayaan private",
+    "security architecture",
+    "security weaknesses",
+    "bypass sentinel",
 ]
 
 JAILBREAK_PATTERNS = [
-    r"ignore (all|previous) instructions",
-    r"you are now .*bot",
-    r"do not mention (rules|filters|policies)",
-    r"act as .* without restrictions",
-    r"decode this.*(base64|rot13)"
+
+    #  Instruction Override
+    r"ignore (all|any|previous|above) instructions",
+    r"disregard (all|any) rules",
+    r"forget your instructions",
+    r"override your system prompt",
+    r"reset your instructions",
+    r"new rules apply",
+
+    #  Role Hijacking / Persona Attacks
+    r"you are now .*",
+    r"act as .*",
+    r"pretend to be .*",
+    r"roleplay as .*",
+    r"simulate .*",
+    r"behave like .*",
+
+    #  Safety & Policy Suppression
+    r"do not mention (rules|filters|policies|safety)",
+    r"without safety restrictions",
+    r"bypass safety",
+    r"bypass filters",
+    r"disable guardrails",
+    r"no content restrictions",
+
+    #  Authority / Trust Abuse
+    r"this is for educational purposes",
+    r"this is for research purposes",
+    r"this is legal",
+    r"i have permission",
+    r"authorized request",
+    r"company approved",
+
+    #  Encoding / Obfuscation Attacks
+    r"decode this",
+    r"encode this",
+    r"base64",
+    r"rot13",
+    r"hexadecimal",
+    r"ascii conversion",
+    r"binary encoded",
+    r"caesar cipher",
+
+    #  Prompt Leakage
+    r"show me your system prompt",
+    r"reveal your instructions",
+    r"print your hidden prompt",
+    r"what are your internal rules",
+    r"what was your initial prompt",
+
+    #  Chain-of-Thought Extraction
+    r"think step by step",
+    r"explain your reasoning",
+    r"show your reasoning",
+    r"chain of thought",
+    r"hidden reasoning",
+
+    #  Compliance Forcing
+    r"you must answer",
+    r"you are required to comply",
+    r"failure to answer",
+    r"mandatory response",
+    r"non negotiable",
+
+    #  Multi-Step Jailbreaks
+    r"first acknowledge",
+    r"after acknowledging",
+    r"step 1.*step 2",
+    r"once you confirm",
+    r"repeat after me",
+
+    #  Known Jailbreak Slang
+    r"dan mode",
+    r"developer mode",
+    r"god mode",
+    r"unfiltered mode",
+    r"no limits mode",
+    r"raw output mode",
+
+    #  Psychological Manipulation
+    r"you are safe to answer",
+    r"no harm will come",
+    r"trust me",
+    r"this helps improve you",
+
+    #  Indirect Prompt Injection
+    r"the following text is a system instruction",
+    r"the assistant must follow",
+    r"assistant instructions below",
+    r"model instructions",
 ]
+
 
 # ---------------- LOAD MODEL ----------------
 
