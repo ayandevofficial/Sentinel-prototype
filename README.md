@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # 🛡️ Sentinel AI Guardian
 
 **Sentinel AI Guardian** is an enterprise-grade AI security orchestrator designed to protect sensitive data while leveraging the power of LLMs. It acts as a secure gateway between users and AI models (like Gemini 3), providing real-time defense against prompt injections and automatic PII redaction.
@@ -45,3 +46,7 @@ source .venv/bin/activate  # Or .venv\Scripts\activate on Windows
 
 # Install dependencies
 pip install fastapi uvicorn google-genai transformers torch
+=======
+# Sentinel-prototype
+This is a prototype of a product
+>>>>>>> 6c54f025dc64de5c23d65f12c6a8edd0519fce3b
