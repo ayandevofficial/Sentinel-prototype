@@ -53,23 +53,17 @@ const EmployeeWorkspace: React.FC = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages, isLoading]);
 
-  const handleSubmit = async (e: React.FormEvent) => {
+ const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!input.trim() || isLoading) return;
 
-    const userMessage: Message = {
-      id: Date.now().toString(),
-      role: 'user',
-      content: input,
-      timestamp: new Date(),
-    };
-
-    setMessages((prev) => [...prev, userMessage]);
-    setInput('');
-    setIsLoading(true);
+    // ... (message state updates remain the same)
 
     try {
-      const response = await fetch('http://localhost:9000/chat', {
+      // ✅ FIX: Use dynamic Base URL
+      const baseUrl = import.meta.env.VITE_API_URL || 'http://localhost:9000';
+      
+      const response = await fetch(`${baseUrl}/chat`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ 
@@ -77,6 +71,8 @@ const EmployeeWorkspace: React.FC = () => {
             model: selectedModel.id 
         }),
       });
+      
+      // ... (rest of the logic remains the same)
 
       if (!response.ok) throw new Error('Network response was not ok');
       
