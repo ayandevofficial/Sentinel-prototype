@@ -1,11 +1,13 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
-
+/* 1. All imports MUST stay at the very top */
 @import '@fontsource/inter/400.css';
 @import '@fontsource/inter/500.css';
 @import '@fontsource/inter/600.css';
 @import '@fontsource/inter/700.css';
+
+/* 2. Tailwind directives come after imports */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
 /* Sentinel AI - Enterprise Security Design System */
 
@@ -115,62 +117,4 @@
     --sidebar-foreground: 215 20% 65%;
     --sidebar-primary: 217 91% 60%;
     --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 217 33% 17%;
-    --sidebar-accent-foreground: 210 40% 98%;
-    --sidebar-border: 217 33% 17%;
-    --sidebar-ring: 217 91% 60%;
-  }
-}
-
-@layer base {
-  * {
-    @apply border-border;
-  }
-
-  body {
-    @apply bg-background text-foreground font-sans antialiased;
-    font-family: 'Inter', system-ui, -apple-system, sans-serif;
-  }
-}
-
-@layer components {
-  .sentinel-card {
-    @apply bg-card rounded-lg border border-border;
-    box-shadow: var(--shadow-card);
-  }
-  
-  .sentinel-badge-success {
-    @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium;
-    background-color: hsl(var(--sentinel-success-light));
-    color: hsl(var(--sentinel-success));
-  }
-  
-  .sentinel-badge-warning {
-    @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium;
-    background-color: hsl(var(--sentinel-warning-light));
-    color: hsl(142 76% 20%);
-  }
-  
-  .sentinel-badge-danger {
-    @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium;
-    background-color: hsl(var(--sentinel-danger-light));
-    color: hsl(var(--sentinel-danger));
-  }
-  
-  .sentinel-badge-info {
-    @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium;
-    background-color: hsl(var(--sentinel-info-light));
-    color: hsl(var(--sentinel-info));
-  }
-  
-  .sentinel-gradient-text {
-    @apply bg-clip-text text-transparent;
-    background-image: var(--gradient-primary);
-  }
-}
-
-@layer utilities {
-  .animate-pulse-slow {
-    animation: pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite;
-  }
-}
+    --sidebar-accent: 217 3
