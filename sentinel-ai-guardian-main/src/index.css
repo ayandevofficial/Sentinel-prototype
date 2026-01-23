@@ -1,94 +1,55 @@
-import React from 'react';
-import { motion } from 'framer-motion';
-import { Shield, Lock, Activity, ArrowRight, CheckCircle } from 'lucide-react';
-import { Link } from 'react-router-dom';
-import { Button } from '@/components/ui/button';
-import SentinelLogo from '@/components/SentinelLogo';
+@import '@fontsource/inter/400.css';
+@import '@fontsource/inter/500.css';
+@import '@fontsource/inter/600.css';
+@import '@fontsource/inter/700.css';
 
-const Index = () => {
-  const features = [
-    {
-      title: "ML-Powered Shield",
-      description: "Real-time threat detection with security scoring and verdict badges.",
-      icon: Shield,
-    },
-    {
-      title: "Data Redaction",
-      description: "Automatic PII scrubbing to protect sensitive enterprise information.",
-      icon: Lock,
-    },
-    {
-      title: "Security Auditing",
-      description: "Comprehensive logs and real-time system status monitoring.",
-      icon: Activity,
-    }
-  ];
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
-  return (
-    <div className="min-h-screen bg-background">
-      {/* Hero Section */}
-      <header className="fixed top-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-md border-b border-border">
-        <div className="container mx-auto px-4 h-16 flex items-center justify-between">
-          <SentinelLogo size="md" />
-          <Link to="/login">
-            <Button size="sm">Sign In</Button>
-          </Link>
-        </div>
-      </header>
+@layer base {
+  :root {
+    --background: 210 20% 98%;
+    --foreground: 222 47% 11%;
+    --card: 0 0% 100%;
+    --card-foreground: 222 47% 11%;
+    --primary: 217 91% 60%;
+    --primary-foreground: 0 0% 100%;
+    --border: 214 32% 91%;
+    --input: 214 32% 91%;
+    --ring: 217 91% 60%;
+    --radius: 0.5rem;
+    --sidebar-background: 0 0% 100%;
+    --sidebar-border: 214 32% 91%;
+  }
 
-      <main className="pt-32 pb-20">
-        <section className="container mx-auto px-4 text-center mb-20">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5 }}
-          >
-            <h1 className="text-5xl md:text-7xl font-bold mb-6 tracking-tight">
-              Secure Your AI Workflows <br />
-              <span className="sentinel-gradient-text">Without Compromise</span>
-            </h1>
-            <p className="text-xl text-muted-foreground max-w-2xl mx-auto mb-10">
-              Sentinel AI protects your organization from prompt injections, data leaks, and AI security threats with ML-powered real-time protection.
-            </p>
-            <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-              <Link to="/login">
-                <Button size="lg" className="px-8">Get Started <ArrowRight className="ml-2 h-5 w-5" /></Button>
-              </Link>
-              <Button size="lg" variant="outline" className="px-8">View Demo</Button>
-            </div>
-          </motion.div>
-        </section>
+  .dark {
+    --background: 222 47% 6%;
+    --foreground: 210 40% 98%;
+    --card: 222 47% 8%;
+    --border: 217 33% 17%;
+  }
+}
 
-        {/* Features Grid */}
-        <section className="container mx-auto px-4 py-20 border-t border-border">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {features.map((feature, index) => (
-              <motion.div
-                key={feature.title}
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.5, delay: index * 0.1 }}
-                className="sentinel-card p-6"
-              >
-                <div className="w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center mb-4">
-                  <feature.icon className="h-6 w-6 text-primary" />
-                </div>
-                <h3 className="text-xl font-semibold mb-2">{feature.title}</h3>
-                <p className="text-muted-foreground">{feature.description}</p>
-              </motion.div>
-            ))}
-          </div>
-        </section>
-      </main>
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground font-sans antialiased;
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  }
+}
 
-      <footer className="bg-muted/30 border-t border-border py-12">
-        <div className="container mx-auto px-4 text-center text-muted-foreground">
-          <p>© 2026 Sentinel AI. Enterprise-grade security for the AI era.</p>
-        </div>
-      </footer>
-    </div>
-  );
-};
+@layer components {
+  .sentinel-card {
+    @apply bg-card rounded-lg border border-border;
+    box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1);
+  }
+}
 
-export default Index;
+@layer utilities {
+  .animate-pulse-slow {
+    animation: pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  }
+}
