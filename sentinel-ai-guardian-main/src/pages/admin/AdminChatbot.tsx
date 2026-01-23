@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { Send, Bot, User, Shield, Loader2, Moon, Sun } from 'lucide-react';
+import { Send, Bot, Loader2, Moon, Sun } from 'lucide-react';
 import DashboardHeader from '@/components/DashboardHeader';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
@@ -24,13 +24,17 @@ interface Message {
   verdict?: 'CLEAN' | 'BLOCKED';
 }
 
+/**
+ * AdminChatbot Component
+ * Core interface for the Sentinel AI interaction pipeline.
+ * Features: Responsive layout, dynamic theme switching, and real-time security score visualization.
+ */
 const AdminChatbot: React.FC = () => {
   const [messages, setMessages] = useState<Message[]>([
     {
       id: '1',
       role: 'system',
-      content:
-        'Welcome to Sentinel AI Admin Console. You have full access to security monitoring and system configuration. How can I assist you today?',
+      content: 'Welcome to Sentinel AI Admin Console. Security monitoring is active.',
       timestamp: new Date(),
     },
   ]);
@@ -41,26 +45,26 @@ const AdminChatbot: React.FC = () => {
   const [isDarkMode, setIsDarkMode] = useState(true);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
-
-/* ---------------- THE REAL BACKEND CALL ---------------- */
+  /* ---------------- BACKEND INTEGRATION ---------------- */
+  
+  /**
+   * Dispatches the user prompt to the Sentinel Orchestrator.
+   * Utilizes environment-specific base URLs.
+   */
   const callSentinelPipeline = async (prompt: string) => {
-    
     const baseUrl = import.meta.env.VITE_API_URL || 'http://localhost:9000';
-    
     const res = await fetch(`${baseUrl}/chat`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ prompt }),
     });
 
-    if (!res.ok) {
-      throw new Error('Failed to reach Sentinel backend');
-    }
-
+    if (!res.ok) throw new Error('Sentinel Backend Unreachable');
     return res.json();
   };
 
-  /* ---------------- UI HELPERS ---------------- */
+  /* ---------------- UI EFFECTS ---------------- */
+
   useEffect(() => {
     document.documentElement.classList.toggle('dark', isDarkMode);
   }, [isDarkMode]);
@@ -69,7 +73,8 @@ const AdminChatbot: React.FC = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
 
-  /* ---------------- SUBMIT HANDLER ---------------- */
+  /* ---------------- HANDLERS ---------------- */
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!input.trim() || isLoading) return;
@@ -87,35 +92,23 @@ const AdminChatbot: React.FC = () => {
 
     try {
       const result = await callSentinelPipeline(input);
+      const isBlocked = result.blocked;
 
-      if (result.blocked) {
-        setMessages((prev) => [
-          ...prev,
-          {
-            id: (Date.now() + 1).toString(),
-            role: 'assistant',
-            content:
-              '⚠️ **Security Violation Detected**\n\nThis request has been blocked by the ML-powered Shield.',
-            timestamp: new Date(),
-            securityScore: result.meta?.shield?.security_score,
-            verdict: 'BLOCKED',
-          },
-        ]);
-      } else {
-        setMessages((prev) => [
-          ...prev,
-          {
-            id: (Date.now() + 1).toString(),
-            role: 'assistant',
-            content: result.output, // ✅ REAL GEMINI RESPONSE
-            timestamp: new Date(),
-            securityScore: result.meta?.shield?.security_score,
-            verdict: 'CLEAN',
-          },
-        ]);
-      }
+      setMessages((prev) => [
+        ...prev,
+        {
+          id: (Date.now() + 1).toString(),
+          role: 'assistant',
+          content: isBlocked 
+            ? '⚠️ **Security Violation Detected**\n\nThis request has been blocked by the ML Shield.' 
+            : result.output,
+          timestamp: new Date(),
+          securityScore: result.meta?.shield?.security_score,
+          verdict: isBlocked ? 'BLOCKED' : 'CLEAN',
+        },
+      ]);
     } catch (err) {
-      console.error(err);
+      console.error('Pipeline Execution Error:', err);
     } finally {
       setIsLoading(false);
     }
@@ -128,55 +121,66 @@ const AdminChatbot: React.FC = () => {
     }
   };
 
-  /* ---------------- JSX ---------------- */
   return (
-    <div className="h-[calc(100vh-4rem)] flex flex-col">
+    // 'h-dvh' prevents layout jumping when mobile address bars appear/disappear
+    <div className="h-dvh md:h-[calc(100vh-4rem)] flex flex-col overflow-hidden">
+      
       <DashboardHeader title="AI Chatbot">
-        <div className="flex items-center gap-4">
-          <div className="flex items-center gap-2 bg-muted/50 rounded-lg px-3 py-1.5">
-            <Sun className="w-4 h-4" />
+        <div className="flex items-center gap-2 md:gap-4">
+          {/* Controls Container: Adjusted spacing for smaller viewports */}
+          <div className="flex items-center gap-1.5 md:gap-2 bg-muted/50 rounded-lg px-2 py-1 md:px-3 md:py-1.5">
+            <Sun className="w-3.5 h-3.5 md:w-4 md:h-4" />
             <Switch checked={isDarkMode} onCheckedChange={setIsDarkMode} />
-            <Moon className="w-4 h-4" />
+            <Moon className="w-3.5 h-3.5 md:w-4 md:h-4" />
           </div>
 
           <Select value={selectedModel} onValueChange={setSelectedModel}>
-            <SelectTrigger className="w-48">
+            <SelectTrigger className="w-28 md:w-48 h-8 md:h-10 text-[10px] md:text-sm">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="gemini">Google Gemini</SelectItem>
-              <SelectItem value="gpt4">OpenAI GPT-4</SelectItem>
-              <SelectItem value="claude">Claude</SelectItem>
+              <SelectItem value="gemini">Gemini Pro</SelectItem>
+              <SelectItem value="gpt4">GPT-4 Turbo</SelectItem>
+              <SelectItem value="claude">Claude 3</SelectItem>
             </SelectContent>
           </Select>
         </div>
       </DashboardHeader>
 
-      <motion.div className="flex-1 sentinel-card flex flex-col overflow-hidden">
-        <div className="flex-1 overflow-y-auto p-6 space-y-4">
+      <motion.div className="flex-1 sentinel-card flex flex-col overflow-hidden bg-card/50 backdrop-blur-md border rounded-t-2xl md:rounded-xl">
+        
+        {/* Chat Feed - Responsive padding and message bubble widths */}
+        <div className="flex-1 overflow-y-auto p-3 md:p-6 space-y-4 scrollbar-thin">
           {messages.map((m) => (
             <div
               key={m.id}
               className={cn(
-                'flex gap-3',
+                'flex gap-2 md:gap-3 items-start',
                 m.role === 'user' ? 'justify-end' : 'justify-start'
               )}
             >
+              {/* Bot Icon: Hidden on small mobiles to save space */}
               {m.role !== 'user' && (
-                <div className="w-8 h-8 bg-primary/10 rounded-lg flex items-center justify-center">
-                  <Bot className="w-5 h-5" />
+                <div className="hidden sm:flex w-8 h-8 bg-primary/10 rounded-lg items-center justify-center shrink-0">
+                  <Bot className="w-5 h-5 text-primary" />
                 </div>
               )}
 
-              <div className="bg-muted rounded-lg p-4 max-w-[70%]">
-                <div className="text-sm whitespace-pre-wrap">{m.content}</div>
+              <div className={cn(
+                "rounded-2xl p-3 md:p-4 text-sm shadow-sm transition-all",
+                m.role === 'user' 
+                  ? "bg-primary text-primary-foreground max-w-[85%] md:max-w-[70%]" 
+                  : "bg-muted text-foreground max-w-[90%] md:max-w-[75%]"
+              )}>
+                <div className="whitespace-pre-wrap leading-relaxed">{m.content}</div>
 
+                {/* Verdict Metadata Visualization */}
                 {m.verdict && (
-                  <div className="flex gap-3 mt-2 pt-2 border-t">
+                  <div className="flex flex-wrap items-center gap-2 mt-3 pt-2 border-t border-border/40">
                     <VerdictBadge verdict={m.verdict} />
                     {m.securityScore !== undefined && (
-                      <span className="text-xs opacity-70">
-                        Score: {m.securityScore.toFixed(2)}
+                      <span className="text-[10px] md:text-xs font-mono opacity-60">
+                        Score: {m.securityScore.toFixed(3)}
                       </span>
                     )}
                   </div>
@@ -186,30 +190,29 @@ const AdminChatbot: React.FC = () => {
           ))}
 
           {isLoading && (
-            <div className="flex gap-3">
-              <Loader2 className="animate-spin" />
-              <span>Processing…</span>
+            <div className="flex items-center gap-2 text-muted-foreground pl-2 italic">
+              <Loader2 className="w-3 h-3 md:w-4 md:h-4 animate-spin" />
+              <span className="text-[10px] md:text-xs">Analyzing payload...</span>
             </div>
           )}
 
           <div ref={messagesEndRef} />
         </div>
 
-        <form onSubmit={handleSubmit} className="p-4 flex gap-3 border-t">
+        {/* Input Footer - Mobile ergonomic height and padding */}
+        <form 
+          onSubmit={handleSubmit} 
+          className="p-3 md:p-4 flex gap-2 md:gap-3 border-t bg-background/80 backdrop-blur-sm"
+        >
           <Textarea
             value={input}
             onChange={(e) => setInput(e.target.value)}
             onKeyDown={handleKeyDown}
-            placeholder="Ask something…"
+            placeholder="Secure chat session..."
+            className="min-h-[44px] max-h-[120px] text-xs md:text-sm resize-none"
             disabled={isLoading}
           />
-          <Button type="submit" disabled={isLoading}>
-            <Send />
+          <Button type="submit" disabled={isLoading || !input.trim()} size="icon" className="shrink-0 h-11 w-11 md:h-12 md:w-12">
+            <Send className="w-4 h-4 md:w-5 md:h-5" />
           </Button>
-        </form>
-      </motion.div>
-    </div>
-  );
-};
-
-export default AdminChatbot;
+        </
