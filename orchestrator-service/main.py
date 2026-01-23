@@ -24,8 +24,8 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-SHIELD_URL = "http://localhost:8000/shield"
-SCRUBBER_URL = "http://localhost:8001/redact"
+SHIELD_URL = os.getenv("SHIELD_URL", "http://localhost:8000/shield")
+SCRUBBER_URL = os.getenv("SCRUBBER_URL", "http://localhost:8001/redact")
 
 @app.post("/chat")
 async def chat(payload: dict):
