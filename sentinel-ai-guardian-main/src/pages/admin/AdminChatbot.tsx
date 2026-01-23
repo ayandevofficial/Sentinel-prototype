@@ -24,11 +24,6 @@ interface Message {
   verdict?: 'CLEAN' | 'BLOCKED';
 }
 
-/**
- * AdminChatbot Component
- * Core interface for the Sentinel AI interaction pipeline.
- * Features: Responsive layout, dynamic theme switching, and real-time security score visualization.
- */
 const AdminChatbot: React.FC = () => {
   const [messages, setMessages] = useState<Message[]>([
     {
@@ -45,12 +40,6 @@ const AdminChatbot: React.FC = () => {
   const [isDarkMode, setIsDarkMode] = useState(true);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
-  /* ---------------- BACKEND INTEGRATION ---------------- */
-  
-  /**
-   * Dispatches the user prompt to the Sentinel Orchestrator.
-   * Utilizes environment-specific base URLs.
-   */
   const callSentinelPipeline = async (prompt: string) => {
     const baseUrl = import.meta.env.VITE_API_URL || 'http://localhost:9000';
     const res = await fetch(`${baseUrl}/chat`, {
@@ -63,8 +52,6 @@ const AdminChatbot: React.FC = () => {
     return res.json();
   };
 
-  /* ---------------- UI EFFECTS ---------------- */
-
   useEffect(() => {
     document.documentElement.classList.toggle('dark', isDarkMode);
   }, [isDarkMode]);
@@ -72,8 +59,6 @@ const AdminChatbot: React.FC = () => {
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
-
-  /* ---------------- HANDLERS ---------------- */
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -122,12 +107,10 @@ const AdminChatbot: React.FC = () => {
   };
 
   return (
-    // 'h-dvh' prevents layout jumping when mobile address bars appear/disappear
     <div className="h-dvh md:h-[calc(100vh-4rem)] flex flex-col overflow-hidden">
       
       <DashboardHeader title="AI Chatbot">
         <div className="flex items-center gap-2 md:gap-4">
-          {/* Controls Container: Adjusted spacing for smaller viewports */}
           <div className="flex items-center gap-1.5 md:gap-2 bg-muted/50 rounded-lg px-2 py-1 md:px-3 md:py-1.5">
             <Sun className="w-3.5 h-3.5 md:w-4 md:h-4" />
             <Switch checked={isDarkMode} onCheckedChange={setIsDarkMode} />
@@ -149,7 +132,6 @@ const AdminChatbot: React.FC = () => {
 
       <motion.div className="flex-1 sentinel-card flex flex-col overflow-hidden bg-card/50 backdrop-blur-md border rounded-t-2xl md:rounded-xl">
         
-        {/* Chat Feed - Responsive padding and message bubble widths */}
         <div className="flex-1 overflow-y-auto p-3 md:p-6 space-y-4 scrollbar-thin">
           {messages.map((m) => (
             <div
@@ -159,7 +141,6 @@ const AdminChatbot: React.FC = () => {
                 m.role === 'user' ? 'justify-end' : 'justify-start'
               )}
             >
-              {/* Bot Icon: Hidden on small mobiles to save space */}
               {m.role !== 'user' && (
                 <div className="hidden sm:flex w-8 h-8 bg-primary/10 rounded-lg items-center justify-center shrink-0">
                   <Bot className="w-5 h-5 text-primary" />
@@ -174,7 +155,6 @@ const AdminChatbot: React.FC = () => {
               )}>
                 <div className="whitespace-pre-wrap leading-relaxed">{m.content}</div>
 
-                {/* Verdict Metadata Visualization */}
                 {m.verdict && (
                   <div className="flex flex-wrap items-center gap-2 mt-3 pt-2 border-t border-border/40">
                     <VerdictBadge verdict={m.verdict} />
@@ -199,7 +179,6 @@ const AdminChatbot: React.FC = () => {
           <div ref={messagesEndRef} />
         </div>
 
-        {/* Input Footer - Mobile ergonomic height and padding */}
         <form 
           onSubmit={handleSubmit} 
           className="p-3 md:p-4 flex gap-2 md:gap-3 border-t bg-background/80 backdrop-blur-sm"
@@ -215,4 +194,10 @@ const AdminChatbot: React.FC = () => {
           <Button type="submit" disabled={isLoading || !input.trim()} size="icon" className="shrink-0 h-11 w-11 md:h-12 md:w-12">
             <Send className="w-4 h-4 md:w-5 md:h-5" />
           </Button>
-        </
+        </form>
+      </motion.div>
+    </div>
+  );
+};
+
+export default AdminChatbot;
