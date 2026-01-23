@@ -44,8 +44,7 @@ const AdminChatbot: React.FC = () => {
 
 /* ---------------- THE REAL BACKEND CALL ---------------- */
   const callSentinelPipeline = async (prompt: string) => {
-    // Environment variable use kora hocche
-    // Jodi .env file na thake, tahole default localhost nibe
+    
     const baseUrl = import.meta.env.VITE_API_URL || 'http://localhost:9000';
     
     const res = await fetch(`${baseUrl}/chat`, {
