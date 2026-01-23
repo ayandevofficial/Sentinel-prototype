@@ -41,9 +41,14 @@ const AdminChatbot: React.FC = () => {
   const [isDarkMode, setIsDarkMode] = useState(true);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
-  /* ---------------- THE REAL BACKEND CALL ---------------- */
+
+/* ---------------- THE REAL BACKEND CALL ---------------- */
   const callSentinelPipeline = async (prompt: string) => {
-    const res = await fetch('http://localhost:9000/chat', {
+    // Environment variable use kora hocche
+    // Jodi .env file na thake, tahole default localhost nibe
+    const baseUrl = import.meta.env.VITE_API_URL || 'http://localhost:9000';
+    
+    const res = await fetch(`${baseUrl}/chat`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ prompt }),
