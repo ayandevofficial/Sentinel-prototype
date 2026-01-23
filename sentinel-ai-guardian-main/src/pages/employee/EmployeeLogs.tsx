@@ -7,11 +7,13 @@ import { Loader2 } from 'lucide-react'; // For a loading state
 const EmployeeLogs: React.FC = () => {
   const [logs, setLogs] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-
-  useEffect(() => {
+useEffect(() => {
     const fetchLogs = async () => {
       try {
-        const response = await fetch('http://localhost:8000/logs');
+        // ✅ FIX: Use VITE_API_URL for production (Vercel)
+        const baseUrl = import.meta.env.VITE_API_URL || 'http://localhost:8000';
+        
+        const response = await fetch(`${baseUrl}/logs`);
         const data = await response.json();
         setLogs(data);
       } catch (error) {
@@ -23,6 +25,8 @@ const EmployeeLogs: React.FC = () => {
 
     fetchLogs();
   }, []);
+ 
+
 
   return (
     <div>
