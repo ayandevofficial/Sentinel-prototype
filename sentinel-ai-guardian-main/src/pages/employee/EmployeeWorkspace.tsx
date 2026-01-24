@@ -173,10 +173,9 @@ const EmployeeWorkspace: React.FC = () => {
                 }`}>
                   {m.role === 'user' ? <User size={18}/> : m.role === 'system' ? <AlertTriangle size={18}/> : <Bot size={18}/>}
                 </div>
-
-                {/* Message Bubble */}
-                <div className={`flex flex-col max-w-[85%] md:max-w-[75%] ${m.role === 'user' ? 'items-end' : 'items-start'}`}>
-                  <div className={`px-4 py-3 rounded-2xl text-sm shadow-sm ${
-                    m.role === 'user' 
-                      ? 'bg-primary text-white rounded-tr-none' // Force White text for User
-                      : 'bg-muted text-foreground rounded-tl-none border
+<div className={`px-4 py-3 rounded-2xl text-sm shadow-sm ${
+  m.role === 'user' 
+    ? 'bg-primary text-white rounded-tr-none' 
+    : 'bg-muted text-foreground rounded-tl-none border border-border'
+}`}>
+               
