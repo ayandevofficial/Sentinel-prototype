@@ -22,19 +22,41 @@ const AdminSecurityLogs: React.FC = () => {
   const [expandedRow, setExpandedRow] = useState<string | null>(null);
 
   const filteredLogs = mockSecurityLogs.filter((log) => {
+    // 1. Check Search Query
     const matchesSearch = searchQuery === '' || 
       log.event.toLowerCase().includes(searchQuery.toLowerCase()) ||
       log.userName?.toLowerCase().includes(searchQuery.toLowerCase()) ||
       log.originalPrompt?.toLowerCase().includes(searchQuery.toLowerCase());
     
     if (!matchesSearch) return false;
+
+    // 2. Check Severity
     if (severity !== 'all' && log.severity !== severity) return false;
+
+    // 3. Check Event Type
+    if (eventType !== 'all') {
+        const typeMap: Record<string, string> = {
+            'injection': 'Prompt Injection',
+            'pii': 'PII Redaction',
+            'malicious': 'Malicious Payload'
+        };
+        if (!log.event.toLowerCase().includes(typeMap[eventType].toLowerCase())) {
+            return false;
+        }
+    }
+
     return true;
   });
 
   const toggleRow = (id: string) => {
     setExpandedRow(expandedRow === id ? null : id);
   };
+
+  // Shared glass effect class for dropdown content
+  const glassDropdownClass = "bg-slate-950/80 backdrop-blur-xl border border-white/10 text-foreground shadow-2xl";
+  
+  // NEW: Class to remove the blue focus ring
+  const noFocusRingClass = "focus:ring-0 focus:ring-offset-0 focus-visible:ring-0 focus-visible:ring-offset-0";
 
   return (
     <div>
@@ -58,47 +80,54 @@ const AdminSecurityLogs: React.FC = () => {
         className="sentinel-card p-6 mb-6"
       >
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          
+          {/* Date Range Dropdown */}
           <div>
             <label className="block text-sm font-medium text-foreground mb-2">Date Range</label>
             <Select value={dateRange} onValueChange={setDateRange}>
-              <SelectTrigger>
+              <SelectTrigger className={noFocusRingClass}>
                 <SelectValue placeholder="Select date range" />
               </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="24h">Last 24 Hours</SelectItem>
-                <SelectItem value="7d">Last 7 Days</SelectItem>
-                <SelectItem value="30d">Last 30 Days</SelectItem>
+              <SelectContent className={glassDropdownClass}>
+                <SelectItem value="24h" className="focus:bg-white/10 focus:text-white cursor-pointer">Last 24 Hours</SelectItem>
+                <SelectItem value="7d" className="focus:bg-white/10 focus:text-white cursor-pointer">Last 7 Days</SelectItem>
+                <SelectItem value="30d" className="focus:bg-white/10 focus:text-white cursor-pointer">Last 30 Days</SelectItem>
               </SelectContent>
             </Select>
           </div>
+
+          {/* Event Type Dropdown */}
           <div>
             <label className="block text-sm font-medium text-foreground mb-2">Event Type</label>
             <Select value={eventType} onValueChange={setEventType}>
-              <SelectTrigger>
+              <SelectTrigger className={noFocusRingClass}>
                 <SelectValue placeholder="Select event type" />
               </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All Events</SelectItem>
-                <SelectItem value="injection">Prompt Injection</SelectItem>
-                <SelectItem value="pii">PII Redaction</SelectItem>
-                <SelectItem value="malicious">Malicious Payload</SelectItem>
+              <SelectContent className={glassDropdownClass}>
+                <SelectItem value="all" className="focus:bg-white/10 focus:text-white cursor-pointer">All Events</SelectItem>
+                <SelectItem value="injection" className="focus:bg-white/10 focus:text-white cursor-pointer">Prompt Injection</SelectItem>
+                <SelectItem value="pii" className="focus:bg-white/10 focus:text-white cursor-pointer">PII Redaction</SelectItem>
+                <SelectItem value="malicious" className="focus:bg-white/10 focus:text-white cursor-pointer">Malicious Payload</SelectItem>
               </SelectContent>
             </Select>
           </div>
+
+          {/* Severity Dropdown */}
           <div>
             <label className="block text-sm font-medium text-foreground mb-2">Severity</label>
             <Select value={severity} onValueChange={setSeverity}>
-              <SelectTrigger>
+              <SelectTrigger className={noFocusRingClass}>
                 <SelectValue placeholder="Select severity" />
               </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All Severities</SelectItem>
-                <SelectItem value="high">High</SelectItem>
-                <SelectItem value="medium">Medium</SelectItem>
-                <SelectItem value="low">Low</SelectItem>
+              <SelectContent className={glassDropdownClass}>
+                <SelectItem value="all" className="focus:bg-white/10 focus:text-white cursor-pointer">All Severities</SelectItem>
+                <SelectItem value="high" className="focus:bg-white/10 focus:text-white cursor-pointer">High</SelectItem>
+                <SelectItem value="medium" className="focus:bg-white/10 focus:text-white cursor-pointer">Medium</SelectItem>
+                <SelectItem value="low" className="focus:bg-white/10 focus:text-white cursor-pointer">Low</SelectItem>
               </SelectContent>
             </Select>
           </div>
+
         </div>
       </motion.div>
 

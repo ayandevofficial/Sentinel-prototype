@@ -44,6 +44,17 @@ const AdminSettings: React.FC = () => {
     toast.success('API configuration saved successfully');
   };
 
+  // --- STYLING CLASSES ---
+  
+  // 1. Glass Card Effect for the main container
+  const glassCardClass = "bg-slate-950/70 backdrop-blur-md border border-white/10 shadow-xl rounded-xl";
+  
+  // 2. Glass Effect for Dropdowns
+  const glassDropdownClass = "bg-slate-950/80 backdrop-blur-xl border border-white/10 text-foreground shadow-2xl";
+  
+  // 3. Remove Blue Border (Focus Ring) for Inputs/Selects
+  const noFocusClass = "focus-visible:ring-0 focus-visible:ring-offset-0 focus:ring-0 focus:ring-offset-0 border-white/10 bg-background/50";
+
   return (
     <div>
       <DashboardHeader title="Settings" />
@@ -64,8 +75,8 @@ const AdminSettings: React.FC = () => {
                 className={cn(
                   'w-full text-left px-4 py-2.5 rounded-lg text-sm font-medium transition-colors',
                   activeTab === tab.id
-                    ? 'bg-sidebar-accent text-sidebar-accent-foreground'
-                    : 'text-muted-foreground hover:bg-muted hover:text-foreground'
+                    ? 'bg-primary/10 text-primary border border-primary/20' // Updated active tab style
+                    : 'text-muted-foreground hover:bg-white/5 hover:text-foreground'
                 )}
               >
                 {tab.label}
@@ -80,7 +91,8 @@ const AdminSettings: React.FC = () => {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.3 }}
-          className="flex-1 sentinel-card p-6"
+          // Added glassCardClass here
+          className={cn("flex-1 p-6", glassCardClass)}
         >
           {activeTab === 'general' && (
             <div className="space-y-6">
@@ -88,24 +100,32 @@ const AdminSettings: React.FC = () => {
               <div className="space-y-4 max-w-lg">
                 <div>
                   <Label htmlFor="org-name">Organization Name</Label>
-                  <Input id="org-name" defaultValue="Sentinel AI Corp" className="mt-2" />
+                  <Input 
+                    id="org-name" 
+                    defaultValue="Sentinel AI Corp" 
+                    className={cn("mt-2", noFocusClass)} 
+                  />
                 </div>
                 <div>
                   <Label htmlFor="timezone">Timezone</Label>
                   <Select defaultValue="est">
-                    <SelectTrigger className="mt-2">
+                    <SelectTrigger className={cn("mt-2", noFocusClass)}>
                       <SelectValue placeholder="Select timezone" />
                     </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="est">UTC-05:00 Eastern Time (US & Canada)</SelectItem>
-                      <SelectItem value="pst">UTC-08:00 Pacific Time (US & Canada)</SelectItem>
-                      <SelectItem value="utc">UTC+00:00 Universal Time</SelectItem>
+                    <SelectContent className={glassDropdownClass}>
+                      <SelectItem value="est" className="focus:bg-white/10 focus:text-white cursor-pointer">UTC-05:00 Eastern Time (US & Canada)</SelectItem>
+                      <SelectItem value="pst" className="focus:bg-white/10 focus:text-white cursor-pointer">UTC-08:00 Pacific Time (US & Canada)</SelectItem>
+                      <SelectItem value="utc" className="focus:bg-white/10 focus:text-white cursor-pointer">UTC+00:00 Universal Time</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
                 <div>
                   <Label htmlFor="admin-email">Admin Email</Label>
-                  <Input id="admin-email" defaultValue="admin@sentinelai.com" className="mt-2" />
+                  <Input 
+                    id="admin-email" 
+                    defaultValue="admin@sentinelai.com" 
+                    className={cn("mt-2", noFocusClass)} 
+                  />
                 </div>
               </div>
             </div>
@@ -131,14 +151,14 @@ const AdminSettings: React.FC = () => {
                 <div>
                   <Label htmlFor="session-timeout">Session Timeout</Label>
                   <Select defaultValue="30">
-                    <SelectTrigger className="mt-2">
+                    <SelectTrigger className={cn("mt-2", noFocusClass)}>
                       <SelectValue placeholder="Select timeout" />
                     </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="15">15 minutes</SelectItem>
-                      <SelectItem value="30">30 minutes</SelectItem>
-                      <SelectItem value="60">1 hour</SelectItem>
-                      <SelectItem value="120">2 hours</SelectItem>
+                    <SelectContent className={glassDropdownClass}>
+                      <SelectItem value="15" className="focus:bg-white/10 focus:text-white cursor-pointer">15 minutes</SelectItem>
+                      <SelectItem value="30" className="focus:bg-white/10 focus:text-white cursor-pointer">30 minutes</SelectItem>
+                      <SelectItem value="60" className="focus:bg-white/10 focus:text-white cursor-pointer">1 hour</SelectItem>
+                      <SelectItem value="120" className="focus:bg-white/10 focus:text-white cursor-pointer">2 hours</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
@@ -172,7 +192,7 @@ const AdminSettings: React.FC = () => {
                     value={customBlacklist}
                     onChange={(e) => setCustomBlacklist(e.target.value)}
                     rows={6}
-                    className="font-mono text-sm"
+                    className={cn("font-mono text-sm", noFocusClass)}
                   />
                 </div>
 
@@ -192,13 +212,11 @@ const AdminSettings: React.FC = () => {
                     Select the default AI model for all chat requests
                   </p>
                   <Select value={primaryModel} onValueChange={setPrimaryModel}>
-                    <SelectTrigger>
+                    <SelectTrigger className={noFocusClass}>
                       <SelectValue placeholder="Select primary model" />
                     </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="gemini">Google Gemini (Recommended)</SelectItem>
-                      <SelectItem value="openai">OpenAI ChatGPT</SelectItem>
-                      <SelectItem value="claude">Anthropic Claude</SelectItem>
+                    <SelectContent className={glassDropdownClass}>
+                      <SelectItem value="gemini" className="focus:bg-white/10 focus:text-white cursor-pointer">Google Gemini (Recommended)</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
@@ -211,31 +229,7 @@ const AdminSettings: React.FC = () => {
                     value={geminiApiKey}
                     onChange={(e) => setGeminiApiKey(e.target.value)}
                     placeholder="Enter your Gemini API key..."
-                    className="mt-2 font-mono"
-                  />
-                </div>
-
-                {/* OpenAI API Key */}
-                <div>
-                  <Label>OpenAI API Key</Label>
-                  <Input
-                    type="password"
-                    value={openaiApiKey}
-                    onChange={(e) => setOpenaiApiKey(e.target.value)}
-                    placeholder="sk-..."
-                    className="mt-2 font-mono"
-                  />
-                </div>
-
-                {/* Claude API Key */}
-                <div>
-                  <Label>Anthropic Claude API Key</Label>
-                  <Input
-                    type="password"
-                    value={claudeApiKey}
-                    onChange={(e) => setClaudeApiKey(e.target.value)}
-                    placeholder="sk-ant-..."
-                    className="mt-2 font-mono"
+                    className={cn("mt-2 font-mono", noFocusClass)}
                   />
                 </div>
 
@@ -248,7 +242,7 @@ const AdminSettings: React.FC = () => {
                       <Input
                         value={shieldUrl}
                         onChange={(e) => setShieldUrl(e.target.value)}
-                        className="mt-2 font-mono"
+                        className={cn("mt-2 font-mono", noFocusClass)}
                       />
                     </div>
                     <div>
@@ -256,7 +250,7 @@ const AdminSettings: React.FC = () => {
                       <Input
                         value={scrubberUrl}
                         onChange={(e) => setScrubberUrl(e.target.value)}
-                        className="mt-2 font-mono"
+                        className={cn("mt-2 font-mono", noFocusClass)}
                       />
                     </div>
                   </div>

@@ -5,7 +5,6 @@ import DashboardHeader from '@/components/DashboardHeader';
 
 const AdminIntegrations: React.FC = () => {
   const integrations = [
-    { name: 'OpenAI API', status: 'Connected', icon: Bot },
     { name: 'Shield Service', status: 'Connected', icon: Shield },
     { name: 'Scrubber Service', status: 'Connected', icon: Database },
   ];
