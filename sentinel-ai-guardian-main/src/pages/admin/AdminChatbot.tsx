@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { Send, Bot, Loader2, Moon, Sun } from 'lucide-react';
+import { Send, Bot, Loader2, Moon, Sun, Shield } from 'lucide-react';
 import DashboardHeader from '@/components/DashboardHeader';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
@@ -22,6 +22,7 @@ interface Message {
   timestamp: Date;
   securityScore?: number;
   verdict?: 'CLEAN' | 'BLOCKED';
+  redactedEntities?: string[]; // ✅ FIX 1: Added missing field
 }
 
 const AdminChatbot: React.FC = () => {
@@ -79,6 +80,11 @@ const AdminChatbot: React.FC = () => {
       const result = await callSentinelPipeline(input);
       const isBlocked = result.blocked;
 
+      // ✅ FIX 2: Extract redacted entities from API response
+      const redactedList = result.meta?.scrub?.redactions
+        ? Object.keys(result.meta.scrub.redactions).map(k => k.replace(/[[\]_\d]/g, ''))
+        : [];
+
       setMessages((prev) => [
         ...prev,
         {
@@ -90,10 +96,20 @@ const AdminChatbot: React.FC = () => {
           timestamp: new Date(),
           securityScore: result.meta?.shield?.security_score,
           verdict: isBlocked ? 'BLOCKED' : 'CLEAN',
+          redactedEntities: redactedList, // ✅ Save extracted entities
         },
       ]);
     } catch (err) {
       console.error('Pipeline Execution Error:', err);
+      setMessages((prev) => [
+        ...prev, 
+        {
+            id: Date.now().toString(),
+            role: 'system',
+            content: "⚠️ Error: Could not connect to Sentinel Backend.",
+            timestamp: new Date()
+        }
+      ]);
     } finally {
       setIsLoading(false);
     }
@@ -155,49 +171,5 @@ const AdminChatbot: React.FC = () => {
               )}>
                 <div className="whitespace-pre-wrap leading-relaxed">{m.content}</div>
 
-                {m.verdict && (
-                  <div className="flex flex-wrap items-center gap-2 mt-3 pt-2 border-t border-border/40">
-                    <VerdictBadge verdict={m.verdict} />
-                    {m.securityScore !== undefined && (
-                      <span className="text-[10px] md:text-xs font-mono opacity-60">
-                        Score: {m.securityScore.toFixed(3)}
-                      </span>
-                    )}
-                  </div>
-                )}
-              </div>
-            </div>
-          ))}
-
-          {isLoading && (
-            <div className="flex items-center gap-2 text-muted-foreground pl-2 italic">
-              <Loader2 className="w-3 h-3 md:w-4 md:h-4 animate-spin" />
-              <span className="text-[10px] md:text-xs">Analyzing payload...</span>
-            </div>
-          )}
-
-          <div ref={messagesEndRef} />
-        </div>
-
-        <form 
-          onSubmit={handleSubmit} 
-          className="p-3 md:p-4 flex gap-2 md:gap-3 border-t bg-background/80 backdrop-blur-sm"
-        >
-          <Textarea
-            value={input}
-            onChange={(e) => setInput(e.target.value)}
-            onKeyDown={handleKeyDown}
-            placeholder="Secure chat session..."
-            className="min-h-[44px] max-h-[120px] text-xs md:text-sm resize-none"
-            disabled={isLoading}
-          />
-          <Button type="submit" disabled={isLoading || !input.trim()} size="icon" className="shrink-0 h-11 w-11 md:h-12 md:w-12">
-            <Send className="w-4 h-4 md:w-5 md:h-5" />
-          </Button>
-        </form>
-      </motion.div>
-    </div>
-  );
-};
-
-export default AdminChatbot;
+                {/* ✅ FIX 3: UI Logic to show Redacted Badge */}
+                {m.redactedEntities && m.redactedEntities.length > 0 &&
