@@ -41,6 +41,11 @@ const AdminChatbot: React.FC = () => {
   const [isDarkMode, setIsDarkMode] = useState(true);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
+  // --- STYLING CLASSES ---
+  const glassDropdownClass = "bg-slate-950/80 backdrop-blur-xl border border-white/10 text-foreground shadow-2xl";
+  const noFocusRingClass = "focus:ring-0 focus:ring-offset-0 focus-visible:ring-0 focus-visible:ring-offset-0 border-white/10 bg-background/50";
+
+
   const callSentinelPipeline = async (prompt: string) => {
     const baseUrl = import.meta.env.VITE_API_URL || 'http://localhost:9000';
     const res = await fetch(`${baseUrl}/chat`, {
@@ -134,13 +139,13 @@ const AdminChatbot: React.FC = () => {
           </div>
 
           <Select value={selectedModel} onValueChange={setSelectedModel}>
-            <SelectTrigger className="w-28 md:w-48 h-8 md:h-10 text-[10px] md:text-sm">
+            <SelectTrigger className={cn("w-28 md:w-48 h-8 md:h-10 text-[10px] md:text-sm", noFocusRingClass)}>
               <SelectValue />
             </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="gemini">Gemini Pro</SelectItem>
-              <SelectItem value="gpt4">GPT-4 Turbo</SelectItem>
-              <SelectItem value="claude">Claude 3</SelectItem>
+            <SelectContent className={glassDropdownClass}>
+              <SelectItem value="gemini" className="focus:bg-white/10 focus:text-white cursor-pointer">Gemini Pro</SelectItem>
+              <SelectItem value="gpt4" className="focus:bg-white/10 focus:text-white cursor-pointer">GPT-4 Turbo</SelectItem>
+              <SelectItem value="claude" className="focus:bg-white/10 focus:text-white cursor-pointer">Claude 3</SelectItem>
             </SelectContent>
           </Select>
         </div>
@@ -218,7 +223,7 @@ const AdminChatbot: React.FC = () => {
             onChange={(e) => setInput(e.target.value)}
             onKeyDown={handleKeyDown}
             placeholder="Secure chat session..."
-            className="min-h-[44px] max-h-[120px] text-xs md:text-sm resize-none"
+            className="min-h-[44px] max-h-[120px] text-xs md:text-sm resize-none focus-visible:ring-0 focus-visible:ring-offset-0"
             disabled={isLoading}
           />
           <Button type="submit" disabled={isLoading || !input.trim()} size="icon" className="shrink-0 h-11 w-11 md:h-12 md:w-12">

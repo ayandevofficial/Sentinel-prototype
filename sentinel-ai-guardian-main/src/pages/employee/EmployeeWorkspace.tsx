@@ -11,6 +11,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
+import { cn } from '@/lib/utils'; // Make sure to import cn
 
 interface Message {
   id: string;
@@ -26,8 +27,6 @@ interface Message {
 
 const AI_MODELS = [
   { id: 'gemini-2.5-flash', name: 'Gemini 2.5 Flash', provider: 'Google' },
-  { id: 'gpt-4o', name: 'GPT-4o', provider: 'OpenAI' },
-  { id: 'claude-3.5', name: 'Claude 3.5 Sonnet', provider: 'Anthropic' },
 ];
 
 const EmployeeWorkspace: React.FC = () => {
@@ -44,6 +43,10 @@ const EmployeeWorkspace: React.FC = () => {
   const [selectedModel, setSelectedModel] = useState(AI_MODELS[0]);
   const [isDarkMode, setIsDarkMode] = useState(true);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+
+  // --- STYLING CLASSES ---
+  const glassDropdownClass = "bg-slate-950/80 backdrop-blur-xl border border-white/10 text-foreground shadow-2xl";
+  const noFocusRingClass = "focus-visible:ring-0 focus-visible:ring-offset-0 focus:ring-0 focus:ring-offset-0 border-white/10 bg-background/50";
 
   useEffect(() => {
     document.documentElement.classList.toggle('dark', isDarkMode);
@@ -136,17 +139,22 @@ const EmployeeWorkspace: React.FC = () => {
             <Switch checked={isDarkMode} onCheckedChange={setIsDarkMode} />
             <Moon className="w-4 h-4 text-muted-foreground" />
           </div>
+          
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="outline" className="gap-2">
+              <Button variant="outline" className={cn("gap-2", noFocusRingClass)}>
                 {selectedModel.name} <ChevronDown className="w-4 h-4" />
               </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
+            <DropdownMenuContent align="end" className={glassDropdownClass}>
               {AI_MODELS.map((model) => (
-                <DropdownMenuItem key={model.id} onClick={() => setSelectedModel(model)}>
+                <DropdownMenuItem 
+                    key={model.id} 
+                    onClick={() => setSelectedModel(model)}
+                    className="focus:bg-white/10 focus:text-white cursor-pointer"
+                >
                   <span>{model.name}</span>
-                  <span className="text-xs text-muted-foreground ml-2">{model.provider}</span>
+                  <span className="text-xs text-muted-foreground ml-2 opacity-70">{model.provider}</span>
                 </DropdownMenuItem>
               ))}
             </DropdownMenuContent>
@@ -154,8 +162,8 @@ const EmployeeWorkspace: React.FC = () => {
         </div>
       </DashboardHeader>
 
-      <div className="flex-1 sentinel-card flex flex-col overflow-hidden">
-        <div className="flex-1 overflow-y-auto p-4 md:p-6 space-y-6">
+      <div className="flex-1 sentinel-card flex flex-col overflow-hidden bg-card/50 backdrop-blur-md border rounded-xl m-4 md:m-6 mt-0">
+        <div className="flex-1 overflow-y-auto p-4 md:p-6 space-y-6 scrollbar-thin">
           <AnimatePresence>
             {messages.map((m) => (
               <motion.div 
@@ -166,8 +174,8 @@ const EmployeeWorkspace: React.FC = () => {
               >
                 {/* Role Icon */}
                 <div className={`w-9 h-9 rounded-lg flex items-center justify-center shrink-0 shadow-sm ${
-                    m.role === 'user' ? 'bg-primary text-white' : 
-                    m.role === 'system' ? 'bg-destructive/10 text-destructive' : 'bg-muted border border-border'
+                  m.role === 'user' ? 'bg-primary text-white' : 
+                  m.role === 'system' ? 'bg-destructive/10 text-destructive' : 'bg-muted border border-border'
                 }`}>
                   {m.role === 'user' ? <User size={18}/> : m.role === 'system' ? <AlertTriangle size={18}/> : <Bot size={18}/>}
                 </div>
@@ -208,16 +216,16 @@ const EmployeeWorkspace: React.FC = () => {
           <div ref={messagesEndRef} />
         </div>
 
-        <form onSubmit={handleSubmit} className="p-4 border-t bg-card">
+        <form onSubmit={handleSubmit} className="p-4 border-t bg-background/50 backdrop-blur-sm">
           <div className="flex gap-3">
             <Textarea 
               value={input} 
               onChange={(e) => setInput(e.target.value)} 
               placeholder="Ask anything..." 
-              className="min-h-[50px] resize-none focus-visible:ring-primary"
+              className={cn("min-h-[50px] resize-none", noFocusRingClass)}
               onKeyDown={(e) => { if(e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleSubmit(e); }}}
             />
-            <Button type="submit" disabled={isLoading || !input.trim()} size="icon" className="h-[50px] w-[50px]">
+            <Button type="submit" disabled={isLoading || !input.trim()} size="icon" className="h-[50px] w-[50px] shrink-0">
                 <Send size={18}/>
             </Button>
           </div>
