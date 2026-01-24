@@ -33,13 +33,13 @@ const AI_MODELS = [
 const EmployeeWorkspace: React.FC = () => {
   const [messages, setMessages] = useState<Message[]>([
     {
-      id: '1',
+      id: 'init-1',
       role: 'assistant',
       content: "Hello! I'm your secure AI assistant. All your prompts are automatically protected by Sentinel AI. How can I help you today?",
       timestamp: new Date(),
     },
   ]);
-  const [input, setInput] = useState('what is python');
+  const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [selectedModel, setSelectedModel] = useState(AI_MODELS[0]);
   const [isDarkMode, setIsDarkMode] = useState(true);
@@ -53,34 +53,45 @@ const EmployeeWorkspace: React.FC = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages, isLoading]);
 
- const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!input.trim() || isLoading) return;
 
-    // ... (message state updates remain the same)
+    // ✅ FIX 1: Unique ID for User Message
+    const userMessage: Message = {
+      id: `user-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+      role: 'user',
+      content: input,
+      timestamp: new Date(),
+    };
+
+    setMessages((prev) => [...prev, userMessage]);
+    setInput('');
+    setIsLoading(true);
 
     try {
-      // ✅ FIX: Use dynamic Base URL
+      // ✅ FIX 2: Vercel Environment Variable Logic
       const baseUrl = import.meta.env.VITE_API_URL || 'http://localhost:9000';
       
       const response = await fetch(`${baseUrl}/chat`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ 
-            prompt: input,
+            prompt: userMessage.content,
             model: selectedModel.id 
         }),
       });
-      
-      // ... (rest of the logic remains the same)
 
       if (!response.ok) throw new Error('Network response was not ok');
       
       const data = await response.json();
+      
+      // ✅ FIX 3: Unique ID for Bot Message
+      const botId = `bot-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
 
       if (data.blocked) {
         setMessages((prev) => [...prev, {
-          id: Date.now().toString(),
+          id: botId,
           role: 'system',
           content: '🛡️ **Security Violation: Blocked by Sentinel**\n\n' + data.output,
           timestamp: new Date(),
@@ -91,7 +102,7 @@ const EmployeeWorkspace: React.FC = () => {
         }]);
       } else {
         setMessages((prev) => [...prev, {
-          id: Date.now().toString(),
+          id: botId,
           role: 'assistant',
           content: data.output,
           timestamp: new Date(),
@@ -107,9 +118,9 @@ const EmployeeWorkspace: React.FC = () => {
     } catch (error) {
       console.error('Connection Error:', error);
       setMessages((prev) => [...prev, {
-        id: Date.now().toString(),
+        id: `err-${Date.now()}`,
         role: 'system',
-        content: '⚠️ **Connection Error**: Could not reach the security orchestrator.',
+        content: '⚠️ **Connection Error**: Could not reach the security orchestrator. Please check your internet or try again later.',
         timestamp: new Date(),
       }]);
     } finally {
@@ -145,55 +156,27 @@ const EmployeeWorkspace: React.FC = () => {
       </DashboardHeader>
 
       <div className="flex-1 sentinel-card flex flex-col overflow-hidden">
-        <div className="flex-1 overflow-y-auto p-6 space-y-4">
+        <div className="flex-1 overflow-y-auto p-4 md:p-6 space-y-6">
           <AnimatePresence>
             {messages.map((m) => (
               <motion.div 
                 key={m.id} 
                 initial={{ opacity: 0, y: 10 }} 
                 animate={{ opacity: 1, y: 0 }}
-                className={`flex items-start gap-3 ${m.role === 'user' ? 'flex-row-reverse' : ''}`}
+                // ✅ FIX 4: Better Layout Alignment
+                className={`flex gap-3 ${m.role === 'user' ? 'flex-row-reverse' : 'flex-row'}`}
               >
-                <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${m.role === 'user' ? 'bg-primary' : m.role === 'system' ? 'bg-destructive/10 text-destructive' : 'bg-muted'}`}>
-                  {m.role === 'user' ? <User size={16}/> : m.role === 'system' ? <AlertTriangle size={16}/> : <Bot size={16}/>}
+                {/* Role Icon */}
+                <div className={`w-9 h-9 rounded-lg flex items-center justify-center shrink-0 shadow-sm ${
+                    m.role === 'user' ? 'bg-primary text-white' : 
+                    m.role === 'system' ? 'bg-destructive/10 text-destructive' : 'bg-muted border border-border'
+                }`}>
+                  {m.role === 'user' ? <User size={18}/> : m.role === 'system' ? <AlertTriangle size={18}/> : <Bot size={18}/>}
                 </div>
-                <div className={`flex-1 max-w-[80%] ${m.role === 'user' ? 'text-right' : ''}`}>
-                  <div className={`inline-block px-4 py-3 rounded-lg ${m.role === 'user' ? 'bg-primary text-primary-foreground' : 'bg-muted text-foreground'}`}>
-                    <p className="text-sm whitespace-pre-wrap">{m.content}</p>
-                  </div>
-                  {m.securityInfo && (
-                    <div className="mt-2 flex items-center gap-2 text-xs text-muted-foreground">
-                      <Shield size={12} />
-                      <span>
-                        {(m.securityInfo.score * 100).toFixed(0)}% • 
-                        <span className={m.securityInfo.verdict === 'CLEAN' ? 'text-green-500' : 'text-red-500'}> {m.securityInfo.verdict}</span>
-                        {m.securityInfo.redactedEntities?.length! > 0 && ` • Redacted: ${m.securityInfo.redactedEntities?.join(', ')}`}
-                      </span>
-                    </div>
-                  )}
-                </div>
-              </motion.div>
-            ))}
-          </AnimatePresence>
-          {isLoading && <div className="text-sm text-muted-foreground animate-pulse">Sentinel is processing your request...</div>}
-          <div ref={messagesEndRef} />
-        </div>
 
-        <form onSubmit={handleSubmit} className="p-4 border-t">
-          <div className="flex gap-3">
-            <Textarea 
-              value={input} 
-              onChange={(e) => setInput(e.target.value)} 
-              placeholder="Ask anything..." 
-              className="min-h-[50px] resize-none"
-              onKeyDown={(e) => { if(e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleSubmit(e); }}}
-            />
-            <Button type="submit" disabled={isLoading || !input.trim()}><Send size={16}/></Button>
-          </div>
-        </form>
-      </div>
-    </div>
-  );
-};
-
-export default EmployeeWorkspace;
+                {/* Message Bubble */}
+                <div className={`flex flex-col max-w-[85%] md:max-w-[75%] ${m.role === 'user' ? 'items-end' : 'items-start'}`}>
+                  <div className={`px-4 py-3 rounded-2xl text-sm shadow-sm ${
+                    m.role === 'user' 
+                      ? 'bg-primary text-white rounded-tr-none' // Force White text for User
+                      : 'bg-muted text-foreground rounded-tl-none border
