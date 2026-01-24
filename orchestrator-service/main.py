@@ -3,19 +3,18 @@ import logging
 import requests
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
-from google import genai  # Updated for 2026 SDK
+from google import genai 
 from dotenv import load_dotenv
 
 load_dotenv()
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger("orchestrator")
 
-# Initialize the new Gemini 2026 Client
+# Initialize Client
 client = genai.Client(api_key=os.getenv("GEMINI_API_KEY"))
 
 app = FastAPI(title="Sentinel Orchestrator API")
 
-# 1. FIXED CORS CONFIGURATION
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -48,14 +47,16 @@ async def chat(payload: dict):
         # 2. PII Redaction (Scrubber)
         scrub_res = requests.post(SCRUBBER_URL, json={"prompt": prompt}, timeout=5)
         scrub = scrub_res.json()
-        clean_prompt = scrub.get("cleaned_prompt", prompt)
+        
+        # ✅ Privacy Fix: AI shudhu 'clean_prompt' dekhbe (e.g. "My phone is [PHONE]")
+        clean_prompt = scrub.get("cleaned_prompt", prompt) 
         redactions = scrub.get("redactions", {})
 
-        # 3. AI Generation (Gemini 2.5 Flash - 2026 standard)
+        # 3. AI Generation (Rate Limit Fix)
         try:
-            # New 2026 SDK Syntax
+            # ✅ CHANGE HERE: Used 'gemini-1.5-flash' for 1500 free requests/day
             response = client.models.generate_content(
-                model="gemini-2.5-flash",
+                model="gemini-1.5-flash", 
                 contents=clean_prompt,
                 config={
                     "temperature": 0.7,
@@ -67,7 +68,8 @@ async def chat(payload: dict):
             logger.error(f"Gemini API Error: {str(e)}")
             ai_text = "The AI service is currently unavailable."
 
-        # 4. Rehydration
+        # 4. Rehydration (Optional: AI er uttor-e asol data ferot ana)
+        # Jodi tui chas AI response-eo phone number na thakuk, tahole ei part-ta comment kore dish.
         for placeholder, real_value in redactions.items():
             ai_text = ai_text.replace(placeholder, real_value)
 
