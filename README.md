@@ -1,4 +1,4 @@
-<<<<<<< HEAD
+
 # 🛡️ Sentinel AI Guardian
 
 **Sentinel AI Guardian** is an enterprise-grade AI security orchestrator designed to protect sensitive data while leveraging the power of LLMs. It acts as a secure gateway between users and AI models (like Gemini 3), providing real-time defense against prompt injections and automatic PII redaction.
